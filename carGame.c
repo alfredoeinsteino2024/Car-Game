@@ -41,7 +41,19 @@ bool CheckOverlap(WorldSystem A, WorldSystem B){
     return true;
 }
 
+float RandomFloat(float min, float max){
+    return min + ((float)rand() / RAND_MAX) * (max - min);
+}
 
+void RecycleObject(WorldSystem *object, float camera_y){
+
+    float road_left = 100.0f;
+    float road_right = 650;
+
+    object ->x = RandomFloat(road_left, road_right - object->w);
+
+    object->y = camera_y - WINDOW_HEIGHT / 2 - object->h - 100.0f;
+}
 
 int main(int argc, char *argv[]){
     // WHAT ARE THOSE THING THAT WILL BE NEEDED FOR ME IN THE WORLD SYSTEMS?
@@ -162,9 +174,16 @@ int main(int argc, char *argv[]){
 
         // THIS IS JUST FOR CONSTANT VELOCITY
         for(int i = 0; i < num_objects; i++){
-            Foreign_Objects[i].y += 200.0f * delta_time;
+            Foreign_Objects[i].x += Foreign_Objects[i].velocity_x * delta_time;
+            Foreign_Objects[i].y += Foreign_Objects[i].velocity_y * delta_time;
         }
         
+        for(int i=0; i < num_objects; i++){
+
+            if(Foreign_Objects[i].y > cam.y + WINDOW_HEIGHT / 2){
+                RecycleObject(&Foreign_Objects[i], cam.y);
+            }
+        }
         // BOUNDARY CREATION 
         float World_Min_x = -100.0f;
         float World_Max_x = 950.0f;
@@ -183,7 +202,6 @@ int main(int argc, char *argv[]){
         //     }
         // }
 
-        // CAMERA IMPLEMENTATION FIXED AT ROAD CENTER
         cam.x = WINDOW_WIDTH / 2;
         cam.y = Player.y + Player.h / 2;
 
@@ -213,9 +231,3 @@ int main(int argc, char *argv[]){
     return 0;
 }
 
-
-
-// I NEED TO WORK WITH SEED.RANDOM NUMBERS FOR THE SHAPES
-// IF THE PLAYER CAN MAKE THE OTHER RECT TO DISAPPEARS, THE SIZE THEN NEED TO INCREASE AS WELL AS THE SPEED
-// HOW DO I MAKE A ROAD LOOK INFINITE??
-// HOW DO I MAKE THE WHOLE SCREEN A PNG TESXTURE?  WHAT ARE THE CRITERIA IN BOTHE SIZE AND QUALITY BEFORE I COULD USE A PNG TO RENDER THE SCREEN OF THE WINDOW I CREATED

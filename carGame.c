@@ -48,17 +48,29 @@ float RandomFloat(float min, float max){
 void RecycleObject(WorldSystem *object, float camera_y){
 
     float road_left = 100.0f;
-    float road_right = 650;
+    float road_right = 650.0f;
 
     object ->x = RandomFloat(road_left, road_right - object->w);
 
     object->y = camera_y - WINDOW_HEIGHT / 2 - object->h - 100.0f;
 }
 
+float FindHighestObstcleY(WorldSystem objects[], int count, WorldSystem *current){
+    float highest_y = 0.0f;
+    bool found = false;
+
+    for(int i = 0; i < count; i++){
+        // Skipping the obstacle that is being recycled
+        if(&objects[i] == current) continue;
+        if(!found || objects[i].y < highest_y){
+            highest_y = objects[i].y;
+            found = true;
+        }
+    }
+}
+
 int main(int argc, char *argv[]){
-    // WHAT ARE THOSE THING THAT WILL BE NEEDED FOR ME IN THE WORLD SYSTEMS?
-    // I AM THINKING OF MAKING A JET/PLAYER TO BE MOVING MAINLY +X AXIS AND -X AXIS BUT THERE WILL BE VELOCITY OF FOREIGN OBJECT TRYING TO COLLIDE WITH MY PLAYER, BUT MY PLAYER WITH THE HELP OF THE SDL_K ARROWS WILL BE ABLE TO MANUEVER IT'S WAY BEFORE BEING IT BY THE FOREIGN OBJECT.
-    // IF THERE IS A COLLISION BETWEEN THE FOREIGN OBJECT AND THE PLAYER, AUTOMATICALLY THE PLAYER DISAPPEARS AND THEN THE WINDOW EXIST IN 10 SECONDS
+   
 
     WorldSystem Player = {300, 950, 50, 80};      // HOW DO INAMKE THE MOVEMENT OF THE PLAYER MOVING VERTICALLY UPWARD TO INFINITY *TAKE NOT THERE IS BOUNDARY, IS IT THAT AFTER IT REACHED THE MAX VERTICAL HEIGHT, IT WILL AUTOMATICALLY START AGIN FROM THE INITIAL MINIMUM VALUE, THEN IT WILL LOOK AS IF THE GAME IS NOT ENDING AND IT WILL COUNTINUE TO INFINITY WHICH IS ACTUALLY AN ILLUSION OF THE GAME.
 
@@ -184,9 +196,15 @@ int main(int argc, char *argv[]){
                 RecycleObject(&Foreign_Objects[i], cam.y);
             }
         }
+        float highest_y = Foreign_Objects[0].y;
+        for(int i = 1; i < num_objects; i++){
+            if(Foreign_Objects[i].y < highest_y){
+                highest_y = Foreign_Objects[i].y;
+            }
+        }
         // BOUNDARY CREATION 
-        float World_Min_x = -100.0f;
-        float World_Max_x = 950.0f;
+        float World_Min_x = 100.0f;
+        float World_Max_x = 650.0f;
        
         // CONDITION TO AVOID OUT BOUNDARY
         if(Player.x < World_Min_x) Player.x = World_Min_x;
